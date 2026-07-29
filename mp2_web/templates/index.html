@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Emotion Detection App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+    <h1>Emotion Detector</h1>
+    <div id="emotion">Detected Emotion: <span id="emotion-text">None</span></div>
+    <button class="btn detect-btn" onclick="detectEmotion()">Detect Emotion</button>
+
+    <div class="section" id="games-section">
+        <h2>Recommended Games 🎮</h2>
+        <div class="card-container" id="game-buttons"></div>
+    </div>
+
+    <div class="section" id="videos-section">
+        <h2>Recommended Videos 🎬</h2>
+        <div class="card-container" id="video-buttons"></div>
+    </div>
+
+    <footer>
+        &copy; 2025 Emotion Detection Project
+    </footer>
+
+    <script>
+        let currentEmotion = "None";
+
+        async function detectEmotion() {
+            try {
+                const resp = await fetch("/detect");
+                const data = await resp.json();
+                currentEmotion = data.emotion.toLowerCase();
+                document.getElementById("emotion-text").innerText = currentEmotion;
+
+                const recResp = await fetch(`/api/get_recommendations?emotion=${currentEmotion}`);
+                const recData = await recResp.json();
+
+                // Games
+                const gameDiv = document.getElementById("game-buttons");
+                gameDiv.innerHTML = "";
+                recData.games.forEach(game => {
+                    const card = document.createElement("div");
+                    card.className = "card";
+                    card.innerHTML = `<div>${game.title}</div>`;
+                    const btn = document.createElement("button");
+                    btn.innerText = "Play Game";
+                    btn.onclick = () => window.open("/games/" + game.file, "_blank");
+                    card.appendChild(btn);
+                    gameDiv.appendChild(card);
+                });
+
+                // Videos
+                const videoDiv = document.getElementById("video-buttons");
+                videoDiv.innerHTML = "";
+                recData.videos.forEach(video => {
+                    const card = document.createElement("div");
+                    card.className = "card";
+                    card.innerHTML = `<div>${video.title}</div>`;
+                    const btn = document.createElement("button");
+                    btn.innerText = "Watch Video";
+                    btn.onclick = () => window.open("https://www.youtube.com/watch?v=" + video.id, "_blank");
+                    card.appendChild(btn);
+                    videoDiv.appendChild(card);
+                });
+
+            } catch(err) {
+                console.error(err);
+                document.getElementById("emotion-text").innerText = "Error detecting emotion";
+            }
+        }
+    </script>
+
+</body>
+</html>
