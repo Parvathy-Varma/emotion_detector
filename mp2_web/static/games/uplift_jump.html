@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Uplift Ball 🌈</title>
+<style>
+  body {
+    margin: 0;
+    font-family: "Poppins", sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: linear-gradient(to top, #76c7fa, #ffe156);
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  h1 {
+    margin-top: 20px;
+    font-size: 2em;
+    color: #fff;
+    text-shadow: 0 0 20px #ff96c7;
+  }
+
+  #score, #timer {
+    position: absolute;
+    top: 20px;
+    font-size: 1.5em;
+    color: #fff;
+    text-shadow: 0 0 10px #ff96c7;
+  }
+  #score { left: 20px; }
+  #timer { right: 20px; }
+
+  #gameContainer {
+    position: relative;
+    width: 400px;
+    height: 600px;
+    border: 3px solid #fff;
+    border-radius: 15px;
+    overflow: hidden;
+    background: linear-gradient(to top, #76c7fa, #ffe156);
+    margin-top: 20px;
+  }
+
+  #ball {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: radial-gradient(circle at top left, #ff8fa3, #ffe156);
+    box-shadow: 0 0 15px #fff96a, 0 0 30px #ff8fa3;
+  }
+
+  .star {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    background: yellow;
+    clip-path: polygon(
+      50% 0%, 61% 35%, 98% 35%, 68% 57%,
+      79% 91%, 50% 70%, 21% 91%, 32% 57%,
+      2% 35%, 39% 35%
+    );
+  }
+
+  #startBtn {
+    margin-top: 20px;
+    padding: 12px 25px;
+    font-size: 1.2em;
+    border: none;
+    border-radius: 30px;
+    background: linear-gradient(90deg, #ff8fa3, #ffe156);
+    color: #1b1b2f;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 0 15px rgba(255, 143, 163, 0.6);
+    transition: 0.3s;
+  }
+
+  #startBtn:hover { transform: scale(1.05); }
+</style>
+</head>
+<body>
+
+<h1>Uplift Ball 🌈</h1>
+<div id="score">Score: 0</div>
+<div id="timer">Time: 30s</div>
+<div id="gameContainer"></div>
+<button id="startBtn">Start Game</button>
+
+<script>
+const gameContainer = document.getElementById("gameContainer");
+const startBtn = document.getElementById("startBtn");
+const scoreText = document.getElementById("score");
+const timerText = document.getElementById("timer");
+
+let ball, ballX = 180, ballY = 500;
+let velocity = 0, gravity = 0.8;
+let stars = [];
+let score = 0;
+let timeLeft = 30;
+let gameInterval, starInterval;
+
+// Movement flags
+let moveLeft = false;
+let moveRight = false;
+
+// Create ball
+function createBall() {
+  ball = document.createElement("div");
+  ball.id = "ball";
+  ball.style.left = ballX + "px";
+  ball.style.top = ballY + "px";
+  gameContainer.appendChild(ball);
+}
+
+// Create a star at random position
+function createStar() {
+  const star = document.createElement("div");
+  star.classList.add("star");
+  star.style.left = Math.random() * 370 + "px";
+  star.style.top = Math.random() * 400 + "px";
+  gameContainer.appendChild(star);
+  stars.push(star);
+}
+
+// Handle jump on click
+gameContainer.addEventListener("click", () => {
+  velocity = -12;
+});
+
+// Handle left/right movement
+document.addEventListener("keydown", (e) => {
+  if(e.key === "ArrowLeft" || e.key === "a") moveLeft = true;
+  if(e.key === "ArrowRight" || e.key === "d") moveRight = true;
+});
+document.addEventListener("keyup", (e) => {
+  if(e.key === "ArrowLeft" || e.key === "a") moveLeft = false;
+  if(e.key === "ArrowRight" || e.key === "d") moveRight = false;
+});
+
+// Start Game
+function startGame() {
+  startBtn.style.display = "none";
+  gameContainer.innerHTML = "";
+  stars = [];
+  score = 0;
+  ballX = 180;
+  ballY = 500;
+  velocity = 0;
+  timeLeft = 30;
+  scoreText.textContent = `Score: ${score}`;
+  timerText.textContent = `Time: ${timeLeft}s`;
+
+  createBall();
+
+  // Spawn stars every 1.5 seconds
+  starInterval = setInterval(createStar, 1500);
+
+  // Game loop
+  gameInterval = setInterval(() => {
+    // Move ball left/right
+    if(moveLeft) ballX -= 5;
+    if(moveRight) ballX += 5;
+    if(ballX < 0) ballX = 0;
+    if(ballX > 360) ballX = 360;
+
+    // Update ball vertical position
+    velocity += gravity;
+    ballY += velocity;
+    if(ballY > 560) ballY = 560;
+    if(ballY < 0) ballY = 0;
+
+    ball.style.left = ballX + "px";
+    ball.style.top = ballY + "px";
+
+    // Check collision with stars
+    stars.forEach((star, index) => {
+      const starRect = star.getBoundingClientRect();
+      const ballRect = ball.getBoundingClientRect();
+      if(!(ballRect.right < starRect.left || ballRect.left > starRect.right || ballRect.bottom < starRect.top || ballRect.top > starRect.bottom)){
+        score++;
+        scoreText.textContent = `Score: ${score}`;
+        star.remove();
+        stars.splice(index,1);
+      }
+    });
+
+    // Timer
+    timeLeft -= 0.02;
+    timerText.textContent = `Time: ${Math.ceil(timeLeft)}s`;
+    if(timeLeft <= 0){
+      clearInterval(gameInterval);
+      clearInterval(starInterval);
+      alert(`🎉 Time's up! Final Score: ${score}`);
+      startBtn.style.display = "block";
+    }
+  }, 20);
+}
+
+startBtn.addEventListener("click", startGame);
+</script>
+
+</body>
+</html>
+
+
+

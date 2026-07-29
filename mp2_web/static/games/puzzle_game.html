@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Shape Match Puzzle</title>
+<style>
+  body {
+    margin: 0;
+    font-family: "Poppins", sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: radial-gradient(circle at top, #3a3a5a, #1b1b2f);
+    color: #fff;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  h1 {
+    margin-top: 60px;
+    font-size: 2em;
+    color: #fff7b5;
+    text-shadow: 0 0 20px #fff96a;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  #score, #timer {
+    position: absolute;
+    top: 20px;
+    font-size: 1.3em;
+    color: #fff7b5;
+    text-shadow: 0 0 10px #fff96a;
+  }
+
+  #score { right: 40px; }
+  #timer { left: 40px; }
+
+  #targetShape {
+    width: 100px;
+    height: 100px;
+    margin: 60px;
+    border-radius: 10px;
+    transition: 0.3s;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+  }
+
+  #options {
+    display: flex;
+    gap: 40px;
+  }
+
+  .shape {
+    width: 90px;
+    height: 90px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+
+  .shape:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+  }
+
+  #startBtn {
+    margin-top: 40px;
+    padding: 12px 25px;
+    font-size: 1.2em;
+    border: none;
+    border-radius: 30px;
+    background: linear-gradient(90deg, #5cf0c6, #76e8fa);
+    color: #1b1b2f;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 0 15px rgba(92, 240, 198, 0.6);
+    transition: 0.3s;
+  }
+
+  #startBtn:hover { transform: scale(1.05); }
+</style>
+</head>
+<body>
+<h1>Shape Match Puzzle 🧩</h1>
+<div id="score">Score: 0</div>
+<div id="timer">Time: 10s</div>
+<div id="targetShape"></div>
+<div id="options"></div>
+<button id="startBtn">Start Game</button>
+
+<script>
+const target = document.getElementById("targetShape");
+const options = document.getElementById("options");
+const startBtn = document.getElementById("startBtn");
+const scoreText = document.getElementById("score");
+const timerText = document.getElementById("timer");
+let score = 0;
+let roundTimer;
+
+const shapes = [
+  { shape: "square", color: "#55aaff" },
+  { shape: "circle", color: "#ff8fa3" },
+  { shape: "triangle", color: "#ffe156" },
+  { shape: "diamond", color: "#9d4edd" },
+];
+
+function createShapeDiv(shapeObj) {
+  const div = document.createElement("div");
+  div.classList.add("shape");
+  div.dataset.shape = shapeObj.shape;
+  div.style.backgroundColor = shapeObj.color;
+
+  if (shapeObj.shape === "circle") div.style.borderRadius = "50%";
+  if (shapeObj.shape === "triangle") {
+    div.style.background = "none";
+    div.style.width = "0";
+    div.style.height = "0";
+    div.style.borderLeft = "45px solid transparent";
+    div.style.borderRight = "45px solid transparent";
+    div.style.borderBottom = `90px solid ${shapeObj.color}`;
+  }
+  if (shapeObj.shape === "diamond") {
+    div.style.transform = "rotate(45deg)";
+    div.style.width = "70px";
+    div.style.height = "70px";
+    div.style.marginTop = "10px";
+  }
+  return div;
+}
+
+function startGame() {
+  score = 0;
+  scoreText.textContent = `Score: ${score}`;
+  startBtn.style.display = "none";
+  nextRound();
+}
+
+function nextRound() {
+  clearInterval(roundTimer);
+  options.innerHTML = "";
+  const targetShape = shapes[Math.floor(Math.random() * shapes.length)];
+  setTargetShape(targetShape);
+
+  const shuffled = [...shapes].sort(() => 0.5 - Math.random());
+  shuffled.forEach((s) => {
+    const div = createShapeDiv(s);
+    div.addEventListener("click", () => handleChoice(s, targetShape));
+    options.appendChild(div);
+  });
+
+  startRoundTimer(10, targetShape); // 10-second timer
+}
+
+function setTargetShape(shapeObj) {
+  target.style.background = shapeObj.color;
+  target.style.borderRadius = shapeObj.shape === "circle" ? "50%" : "10px";
+  target.style.transform = shapeObj.shape === "diamond" ? "rotate(45deg)" : "none";
+
+  if (shapeObj.shape === "triangle") {
+    target.style.background = "none";
+    target.style.width = "0";
+    target.style.height = "0";
+    target.style.borderLeft = "50px solid transparent";
+    target.style.borderRight = "50px solid transparent";
+    target.style.borderBottom = `100px solid ${shapeObj.color}`;
+  } else {
+    target.style.border = "none";
+    target.style.width = "100px";
+    target.style.height = "100px";
+    target.style.borderLeft = target.style.borderRight = target.style.borderBottom = "none";
+  }
+}
+
+function handleChoice(selected, targetShape) {
+  clearInterval(roundTimer);
+  if (selected.shape === targetShape.shape) {
+    score++;
+    scoreText.textContent = `Score: ${score}`;
+    setTimeout(nextRound, 500);
+  } else {
+    alert(`❌ Wrong! Final Score: ${score}`);
+    startBtn.style.display = "block";
+    target.style.background = "none";
+    options.innerHTML = "";
+  }
+}
+
+function startRoundTimer(seconds, targetShape) {
+  let timeLeft = seconds;
+  timerText.textContent = `Time: ${timeLeft}s`;
+
+  roundTimer = setInterval(() => {
+    timeLeft--;
+    timerText.textContent = `Time: ${timeLeft}s`;
+    if (timeLeft <= 0) {
+      clearInterval(roundTimer);
+      alert(`⏰ Time's up! Final Score: ${score}`);
+      startBtn.style.display = "block";
+      target.style.background = "none";
+      options.innerHTML = "";
+    }
+  }, 1000);
+}
+
+startBtn.addEventListener("click", startGame);
+</script>
+</body>
+</html>
+

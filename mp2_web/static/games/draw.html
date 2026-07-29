@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Drawing 🎨</title>
+<style>
+  body {
+    margin: 0;
+    font-family: "Poppins", sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: linear-gradient(to top, #ffe156, #ff8fa3);
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  h1 {
+    margin-top: 20px;
+    font-size: 2em;
+    color: #fff;
+    text-shadow: 0 0 20px #ff96c7;
+  }
+
+  #gameContainer {
+    position: relative;
+    width: 500px;
+    height: 400px;
+    margin-top: 20px;
+    border: 3px solid #fff;
+    border-radius: 15px;
+    background: #fff;
+  }
+
+  #canvas {
+    width: 100%;
+    height: 100%;
+    cursor: crosshair;
+    border-radius: 15px;
+  }
+
+  #tools {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .colorBtn, #eraserBtn, #finishBtn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    transition: 0.2s;
+  }
+
+  .colorBtn { color: #fff; }
+  .colorBtn:hover, #eraserBtn:hover, #finishBtn:hover { transform: scale(1.1); }
+
+  #feedback {
+    margin-top: 15px;
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 0 0 10px #ff7f50;
+    min-height: 40px;
+  }
+#startBtn {
+  margin-top: 20px;
+  padding: 15px 35px;
+  font-size: 1.5em;
+  font-weight: 700;
+  border: none;
+  border-radius: 50px;
+  background: linear-gradient(45deg, #ff6b6b, #ffd93d, #6bc1ff, #ff6b6b);
+  background-size: 300% 300%;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 8px 15px rgba(0,0,0,0.3);
+  transition: 0.3s;
+  text-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  animation: gradientAnimation 5s ease infinite;
+}
+
+#startBtn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 12px 20px rgba(0,0,0,0.4);
+}
+
+/* Animated gradient */
+@keyframes gradientAnimation {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+</style>
+</head>
+<body>
+
+<h1>Happy Drawing 🎨</h1>
+<button id="startBtn">Start Drawing</button>
+
+<div id="gameContainer" style="display:none;">
+  <canvas id="canvas"></canvas>
+</div>
+
+<div id="tools" style="display:none;">
+  <button class="colorBtn" style="background:#ff4d4d" data-color="#ff4d4d">Red</button>
+  <button class="colorBtn" style="background:#4dff88" data-color="#4dff88">Green</button>
+  <button class="colorBtn" style="background:#4d88ff" data-color="#4d88ff">Blue</button>
+  <button class="colorBtn" style="background:#ffd633" data-color="#ffd633">Yellow</button>
+  <button id="eraserBtn">Eraser</button>
+  <button id="finishBtn">Finish</button>
+</div>
+
+<div id="feedback"></div>
+
+<script>
+const startBtn = document.getElementById("startBtn");
+const gameContainer = document.getElementById("gameContainer");
+const tools = document.getElementById("tools");
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+const colorBtns = document.querySelectorAll(".colorBtn");
+const eraserBtn = document.getElementById("eraserBtn");
+const finishBtn = document.getElementById("finishBtn");
+const feedback = document.getElementById("feedback");
+
+let drawing = false;
+let currentColor = "#ff4d4d";
+let lineWidth = 5;
+
+// Resize canvas
+canvas.width = 500;
+canvas.height = 400;
+
+// Start game
+startBtn.addEventListener("click", () => {
+  startBtn.style.display = "none";
+  gameContainer.style.display = "block";
+  tools.style.display = "flex";
+});
+
+// Drawing functions
+canvas.addEventListener("mousedown", e => { drawing = true; ctx.beginPath(); ctx.moveTo(e.offsetX, e.offsetY); });
+canvas.addEventListener("mousemove", e => {
+  if(drawing){
+    ctx.lineTo(e.offsetX, e.offsetY);
+    ctx.strokeStyle = currentColor;
+    ctx.lineWidth = lineWidth;
+    ctx.lineCap = "round";
+    ctx.stroke();
+  }
+});
+canvas.addEventListener("mouseup", () => drawing = false);
+canvas.addEventListener("mouseout", () => drawing = false);
+
+// Color selection
+colorBtns.forEach(btn => {
+  btn.addEventListener("click", () => {
+    currentColor = btn.dataset.color;
+    lineWidth = 5;
+  });
+});
+
+// Eraser
+eraserBtn.addEventListener("click", () => {
+  currentColor = "#fff";
+  lineWidth = 15;
+});
+
+// Finish drawing
+finishBtn.addEventListener("click", () => {
+  const messages = ["Great Drawing! 😄", "Wonderful! 🌟", "Excellent! 🎉", "Amazing! 🖌️"];
+  const msg = messages[Math.floor(Math.random() * messages.length)];
+  feedback.textContent = msg;
+});
+</script>
+
+</body>
+</html>
+

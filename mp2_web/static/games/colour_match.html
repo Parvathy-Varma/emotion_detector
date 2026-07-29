@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Color Sync Challenge 🎨</title>
+<style>
+  body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle at top, #1f1c2c, #928dab);
+    font-family: "Poppins", sans-serif;
+    color: white;
+    overflow: hidden;
+  }
+
+  h1 {
+    font-size: 34px;
+    margin-bottom: 10px;
+    text-shadow: 0 0 20px #ffcc70;
+  }
+
+  #score, #timer {
+    position: absolute;
+    top: 20px;
+    font-size: 20px;
+    padding: 10px 25px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 15px;
+    box-shadow: 0 0 10px rgba(255,255,255,0.2);
+  }
+
+  #score { right: 30px; }
+  #timer { left: 30px; }
+
+  #word {
+    font-size: 70px;
+    margin: 40px 0;
+    transition: color 0.2s ease;
+  }
+
+  #colorButtons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 25px;
+  }
+
+  .colorBtn {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 0 20px rgba(255,255,255,0.4);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .colorBtn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 30px rgba(255,255,255,0.7);
+  }
+
+  #startBtn {
+    margin-top: 20px;
+    background: linear-gradient(45deg, #ff9a9e, #fad0c4);
+    border: none;
+    padding: 15px 45px;
+    border-radius: 30px;
+    font-size: 20px;
+    color: #222;
+    cursor: pointer;
+    box-shadow: 0 0 20px #ffd93d;
+    transition: 0.3s;
+  }
+
+  #startBtn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 30px #ff9a9e;
+  }
+
+  #endMessage {
+    display: none;
+    margin-top: 25px;
+    font-size: 24px;
+    color: #ffd93d;
+    text-shadow: 0 0 15px #ff9a9e;
+  }
+</style>
+</head>
+<body>
+
+  <h1>Color Sync Challenge 🎨</h1>
+  <div id="timer">Time: 20s</div>
+  <div id="score">Score: 0</div>
+  <div id="word">START</div>
+  <div id="colorButtons"></div>
+  <button id="startBtn">Play Game</button>
+  <div id="endMessage"></div>
+
+  <audio id="correctSound" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
+  <audio id="wrongSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+
+<script>
+const colors = [
+  { name: "RED", color: "#ff4b5c" },
+  { name: "BLUE", color: "#1e90ff" },
+  { name: "GREEN", color: "#32cd32" },
+  { name: "YELLOW", color: "#ffd93d" },
+  { name: "PURPLE", color: "#a020f0" },
+  { name: "ORANGE", color: "#ff7f50" }
+];
+
+const wordDisplay = document.getElementById("word");
+const colorButtons = document.getElementById("colorButtons");
+const scoreDisplay = document.getElementById("score");
+const timerDisplay = document.getElementById("timer");
+const startBtn = document.getElementById("startBtn");
+const endMessage = document.getElementById("endMessage");
+const correctSound = document.getElementById("correctSound");
+const wrongSound = document.getElementById("wrongSound");
+
+let score = 0;
+let timeLeft = 20;
+let gameInterval;
+let currentAnswer = "";
+
+function setupButtons() {
+  colorButtons.innerHTML = "";
+  colors.forEach(c => {
+    const btn = document.createElement("button");
+    btn.classList.add("colorBtn");
+    btn.style.background = c.color;
+    btn.addEventListener("click", () => handleChoice(c.name));
+    colorButtons.appendChild(btn);
+  });
+}
+
+function newRound() {
+  const textColor = colors[Math.floor(Math.random() * colors.length)];
+  const wordColor = colors[Math.floor(Math.random() * colors.length)];
+  wordDisplay.textContent = textColor.name;
+  wordDisplay.style.color = wordColor.color;
+  currentAnswer = textColor.name;
+}
+
+function handleChoice(selected) {
+  if (selected === currentAnswer) {
+    score += 10;
+    correctSound.currentTime = 0;
+    correctSound.play();
+  } else {
+    score -= 5;
+    wrongSound.currentTime = 0;
+    wrongSound.play();
+  }
+  scoreDisplay.textContent = "Score: " + score;
+  newRound();
+}
+
+function startGame() {
+  score = 0;
+  timeLeft = 20;
+  startBtn.style.display = "none";
+  endMessage.style.display = "none";
+  setupButtons();
+  scoreDisplay.textContent = "Score: 0";
+  timerDisplay.textContent = "Time: 20s";
+  newRound();
+  gameInterval = setInterval(updateTimer, 1000);
+}
+
+function updateTimer() {
+  timeLeft--;
+  timerDisplay.textContent = "Time: " + timeLeft + "s";
+  if (timeLeft <= 0) endGame();
+}
+
+function endGame() {
+  clearInterval(gameInterval);
+  colorButtons.innerHTML = "";
+  wordDisplay.textContent = "Game Over!";
+  endMessage.style.display = "block";
+  endMessage.innerHTML = `🎯 Final Score: <b>${score}</b>`;
+  startBtn.textContent = "Play Again";
+  startBtn.style.display = "block";
+}
+
+startBtn.addEventListener("click", startGame);
+</script>
+
+</body>
+</html>

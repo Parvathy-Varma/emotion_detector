@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hare vs Tortoise Race 🐢🐇</title>
+<style>
+  body {
+    margin: 0;
+    font-family: "Poppins", sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: linear-gradient(to top, #76c7fa, #ffe156);
+    height: 100vh;
+  }
+
+  h1 {
+    margin-top: 20px;
+    font-size: 2em;
+    color: #fff;
+    text-shadow: 0 0 20px #ff96c7;
+  }
+
+  #gameContainer {
+    position: relative;
+    width: 600px;
+    height: 200px;
+    border: 3px solid #fff;
+    border-radius: 20px;
+    margin-top: 20px;
+    background: #a8e6cf;
+    overflow: hidden;
+  }
+
+  .runner {
+    position: absolute;
+    bottom: 20px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 60px;
+    font-size: 2em;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  }
+
+  #tortoise {
+    background: green;
+    left: 0;
+  }
+
+  #hare {
+    background: orange;
+    left: 0;
+  }
+
+  #startBtn {
+    margin-top: 20px;
+    padding: 15px 35px;
+    font-size: 1.5em;
+    font-weight: 700;
+    border: none;
+    border-radius: 50px;
+    background: linear-gradient(45deg, #ff6b6b, #ffd93d, #6bc1ff, #ff6b6b);
+    background-size: 300% 300%;
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 8px 15px rgba(0,0,0,0.3);
+    transition: 0.3s;
+    text-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    animation: gradientAnimation 5s ease infinite;
+  }
+
+  #startBtn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 12px 20px rgba(0,0,0,0.4);
+  }
+
+  @keyframes gradientAnimation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  #message {
+    margin-top: 20px;
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #fff;
+    text-align: center;
+    text-shadow: 0 0 15px #ff96c7;
+    min-height: 40px;
+  }
+</style>
+</head>
+<body>
+
+<h1>Hare vs Tortoise Race 🐢🐇</h1>
+<button id="startBtn">Start Race</button>
+
+<div id="gameContainer">
+  <div id="tortoise" class="runner">🐢</div>
+  <div id="hare" class="runner">🐇</div>
+</div>
+
+<div id="message"></div>
+
+<script>
+const startBtn = document.getElementById("startBtn");
+const tortoise = document.getElementById("tortoise");
+const hare = document.getElementById("hare");
+const message = document.getElementById("message");
+const gameContainer = document.getElementById("gameContainer");
+
+let tortoiseX = 0;
+let hareX = 0;
+let raceInterval;
+let tortoiseSpeed = 0;
+let raceStarted = false;
+
+function startRace() {
+  startBtn.style.display = "none";
+  message.textContent = "";
+  tortoiseX = 0;
+  hareX = 0;
+  tortoise.style.left = "0px";
+  hare.style.left = "0px";
+  raceStarted = true;
+
+  // Hare speed (slightly random each frame)
+  const hareBaseSpeed = 3;
+
+  raceInterval = setInterval(() => {
+    // Hare moves automatically
+    hareX += hareBaseSpeed + Math.random(); // hare sometimes slows or speeds
+    hare.style.left = hareX + "px";
+
+    // Tortoise moves according to user input
+    tortoiseX += tortoiseSpeed;
+    tortoise.style.left = tortoiseX + "px";
+
+    // Check finish line
+    const finishLine = gameContainer.clientWidth - 60; // runner width
+    if(tortoiseX >= finishLine || hareX >= finishLine){
+      clearInterval(raceInterval);
+      raceStarted = false;
+
+      if(tortoiseX >= hareX){
+        message.innerHTML = "🏆 Slow and steady wins the race!<br> You can do anything and everything, just be calm! 🌟";
+      } else {
+        message.innerHTML = "😊❤️ No problem... try again!";
+      }
+      startBtn.style.display = "block";
+    }
+  }, 20);
+}
+
+// Handle tortoise movement with spacebar
+document.addEventListener("keydown", (e) => {
+  if(raceStarted && e.code === "Space"){
+    tortoiseSpeed = 5; // move fast while holding space
+  }
+});
+document.addEventListener("keyup", (e) => {
+  if(e.code === "Space"){
+    tortoiseSpeed = 0;
+  }
+});
+
+startBtn.addEventListener("click", startRace);
+</script>
+
+</body>
+</html>

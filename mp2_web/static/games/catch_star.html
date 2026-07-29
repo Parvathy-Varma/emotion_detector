@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catch the Stars ✨</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: radial-gradient(circle at top, #0f2027, #203a43, #2c5364);
+      font-family: 'Poppins', sans-serif;
+      color: white;
+      text-align: center;
+    }
+
+    h1 {
+      margin-top: 20px;
+      font-size: 28px;
+      color: #ffd700;
+      text-shadow: 0 0 15px #ffd700;
+    }
+
+    #score {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      font-size: 22px;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 10px 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #ffd700;
+    }
+
+    #startBtn {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: linear-gradient(45deg, #ff6b6b, #ffd93d);
+      color: #222;
+      border: none;
+      font-size: 22px;
+      padding: 15px 35px;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 0 15px #ffd93d;
+      transition: 0.3s;
+    }
+
+    #startBtn:hover {
+      transform: translate(-50%, -50%) scale(1.1);
+      box-shadow: 0 0 25px #ff6b6b;
+    }
+
+    .star {
+      position: absolute;
+      width: 25px;
+      height: 25px;
+      background: radial-gradient(circle, #fffacd, #ffd700);
+      border-radius: 50%;
+      box-shadow: 0 0 15px #ffd700;
+      animation: fall linear;
+    }
+
+    @keyframes fall {
+      from { transform: translateY(-50px); opacity: 1; }
+      to { transform: translateY(100vh); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Catch the Stars ✨</h1>
+  <div id="score">Score: 0</div>
+  <button id="startBtn">Start Game</button>
+
+  <script>
+    const scoreDisplay = document.getElementById('score');
+    const startBtn = document.getElementById('startBtn');
+    let score = 0;
+    let gameInterval;
+
+    function createStar() {
+      const star = document.createElement('div');
+      star.classList.add('star');
+      star.style.left = Math.random() * window.innerWidth + 'px';
+      star.style.animationDuration = (2 + Math.random() * 3) + 's';
+      document.body.appendChild(star);
+
+      star.addEventListener('mouseover', () => {
+        score++;
+        scoreDisplay.textContent = 'Score: ' + score;
+        star.remove();
+      });
+
+      star.addEventListener('animationend', () => {
+        star.remove();
+      });
+    }
+
+    function startGame() {
+      score = 0;
+      scoreDisplay.textContent = 'Score: 0';
+      startBtn.style.display = 'none';
+      gameInterval = setInterval(createStar, 500);
+
+      setTimeout(() => {
+        clearInterval(gameInterval);
+        startBtn.textContent = 'Play Again';
+        startBtn.style.display = 'block';
+      }, 20000); // 20 seconds game duration
+    }
+
+    startBtn.addEventListener('click', startGame);
+  </script>
+</body>
+</html>

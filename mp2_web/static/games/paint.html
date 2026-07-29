@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paint Splash 🎨</title>
+<style>
+  body {
+    margin: 0;
+    font-family: "Poppins", sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: linear-gradient(to top, #ffecd2, #fcb69f);
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  h1 {
+    margin-top: 20px;
+    font-size: 2em;
+    color: #fff;
+    text-shadow: 0 0 20px #ff7f50;
+  }
+
+  #startBtn {
+    margin-top: 20px;
+    padding: 15px 40px;
+    font-size: 1.5em;
+    font-weight: 700;
+    border: none;
+    border-radius: 50px;
+    background: linear-gradient(45deg, #ff6b6b, #ffd93d, #6bc1ff, #ff6b6b);
+    background-size: 300% 300%;
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 8px 15px rgba(0,0,0,0.3);
+    transition: 0.3s;
+    text-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    animation: gradientAnimation 5s ease infinite;
+  }
+
+  #startBtn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 12px 20px rgba(0,0,0,0.4);
+  }
+
+  @keyframes gradientAnimation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  #paintCanvas {
+    margin-top: 20px;
+    border: 5px solid #fff;
+    border-radius: 20px;
+    cursor: crosshair;
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<h1>Paint Splash 🎨</h1>
+<button id="startBtn">Start Painting</button>
+<canvas id="paintCanvas" width="800" height="500"></canvas>
+
+<script>
+const startBtn = document.getElementById("startBtn");
+const canvas = document.getElementById("paintCanvas");
+const ctx = canvas.getContext("2d");
+
+let painting = false;
+
+function getRandomColor() {
+  const colors = ['#ff4d4d', '#4dff88', '#4d88ff', '#ffd633', '#ff6bf0', '#6bffd3', '#ffa64d'];
+  return colors[Math.floor(Math.random() * colors.length)];
+}
+
+function drawSplash(x, y) {
+  const radius = Math.random() * 40 + 20;
+  const color = getRandomColor();
+  const alpha = Math.random() * 0.5 + 0.5;
+
+  ctx.beginPath();
+  ctx.arc(x, y, radius, 0, Math.PI * 2);
+  ctx.fillStyle = color;
+  ctx.globalAlpha = alpha;
+  ctx.fill();
+  ctx.globalAlpha = 1;
+}
+
+canvas.addEventListener("mousedown", () => painting = true);
+canvas.addEventListener("mouseup", () => painting = false);
+canvas.addEventListener("mouseleave", () => painting = false);
+
+canvas.addEventListener("mousemove", (e) => {
+  if(painting){
+    drawSplash(e.offsetX, e.offsetY);
+  }
+});
+
+// Touch support
+canvas.addEventListener("touchmove", (e) => {
+  e.preventDefault();
+  const rect = canvas.getBoundingClientRect();
+  const touch = e.touches[0];
+  drawSplash(touch.clientX - rect.left, touch.clientY - rect.top);
+}, { passive: false });
+
+startBtn.addEventListener("click", () => {
+  startBtn.style.display = "none";
+  canvas.style.display = "block";
+  // Fill background with gradient
+  const gradient = ctx.createLinearGradient(0,0,canvas.width,canvas.height);
+  gradient.addColorStop(0,"#ffe6e6");
+  gradient.addColorStop(1,"#e6f0ff");
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+});
+</script>
+
+</body>
+</html>

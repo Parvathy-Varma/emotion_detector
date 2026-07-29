@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Breathing Exercise 🌸</title>
+<style>
+  body {
+    margin: 0;
+    font-family: "Poppins", sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(to top, #a1c4fd, #c2e9fb);
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  h1 {
+    font-size: 2em;
+    color: #fff;
+    text-shadow: 0 0 10px #7a9ee0;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  #options {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+  }
+
+  .optionBtn {
+    padding: 12px 25px;
+    font-size: 1.2em;
+    font-weight: 600;
+    border: none;
+    border-radius: 30px;
+    background: linear-gradient(45deg, #76e8fa, #5cf0c6);
+    color: #1b1b2f;
+    cursor: pointer;
+    box-shadow: 0 0 15px rgba(92, 240, 198, 0.6);
+    transition: 0.3s;
+  }
+
+  .optionBtn:hover {
+    transform: scale(1.1);
+  }
+
+  #circleContainer {
+    width: 250px;
+    height: 250px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    position: relative;
+  }
+
+ #circle {
+  width: 100px;
+  height: 100px;
+  background: #76e8fa;
+  border-radius: 50%;
+  transition: all 4s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2em;
+  color: #1b1b2f;
+  font-weight: bold;
+  box-shadow: 0 0 20px rgba(92, 240, 198,0.6);
+  text-align: center; /* ensure text is centered */
+  line-height: normal; /* remove fixed line-height */
+  padding: 10px; /* optional: gives space inside circle */
+}
+
+
+  #timerText {
+    margin-top: 20px;
+    font-size: 1.5em;
+    color: #fff;
+    text-shadow: 0 0 10px #5cf0c6;
+  }
+
+  #startBtn {
+    margin-top: 20px;
+    padding: 12px 35px;
+    font-size: 1.3em;
+    font-weight: 700;
+    border: none;
+    border-radius: 50px;
+    background: linear-gradient(45deg, #ff6b6b, #ffd93d, #6bc1ff, #ff6b6b);
+    background-size: 300% 300%;
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 8px 15px rgba(0,0,0,0.3);
+    transition: 0.3s;
+    text-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    animation: gradientAnimation 5s ease infinite;
+  }
+
+  #startBtn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 12px 20px rgba(0,0,0,0.4);
+  }
+
+  @keyframes gradientAnimation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  #message {
+    margin-top: 20px;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #fff;
+    text-align: center;
+    min-height: 40px;
+    text-shadow: 0 0 10px #7a9ee0;
+  }
+</style>
+</head>
+<body>
+
+<h1>Breathing Exercise 🌸</h1>
+<div id="options">
+  <button class="optionBtn" data-time="30">30 seconds</button>
+  <button class="optionBtn" data-time="60">1 minute</button>
+  <button class="optionBtn" data-time="300">5 minutes</button>
+</div>
+<button id="startBtn">Start</button>
+
+<div id="circleContainer">
+  <div id="circle">Breathe In</div>
+</div>
+
+<div id="timerText"></div>
+<div id="message"></div>
+
+<script>
+const options = document.querySelectorAll(".optionBtn");
+const startBtn = document.getElementById("startBtn");
+const circle = document.getElementById("circle");
+const timerText = document.getElementById("timerText");
+const message = document.getElementById("message");
+
+let totalTime = 30;
+let interval;
+
+options.forEach(btn => {
+  btn.addEventListener("click", () => {
+    totalTime = parseInt(btn.dataset.time);
+    message.textContent = `Selected ${btn.textContent}. Click Start to begin.`;
+  });
+});
+
+function startBreathing() {
+  startBtn.disabled = true;
+  let timeLeft = totalTime;
+  timerText.textContent = `Time Left: ${timeLeft}s`;
+  message.textContent = "Follow the circle to breathe slowly...";
+
+  let breatheIn = true; // start with breathe in
+  circle.style.width = "100px";
+  circle.style.height = "100px";
+  circle.textContent = "Breathe In";
+
+  interval = setInterval(() => {
+    // Toggle circle size for inhale/exhale
+    if(breatheIn){
+      circle.style.width = "200px";
+      circle.style.height = "200px";
+      circle.textContent = "Breathe Out";
+      breatheIn = false;
+    } else {
+      circle.style.width = "100px";
+      circle.style.height = "100px";
+      circle.textContent = "Breathe In";
+      breatheIn = true;
+    }
+
+    timeLeft -= 4; // each cycle 4s approx
+    if(timeLeft <= 0){
+      clearInterval(interval);
+      timerText.textContent = "Time's Up!";
+      circle.style.width = "100px";
+      circle.style.height = "100px";
+      circle.textContent = "";
+      message.textContent = "✨ Great job! Feel relaxed and calm. ✨";
+      startBtn.disabled = false;
+    } else {
+      timerText.textContent = `Time Left: ${timeLeft}s`;
+    }
+  }, 4000);
+}
+
+startBtn.addEventListener("click", startBreathing);
+</script>
+
+</body>
+</html>

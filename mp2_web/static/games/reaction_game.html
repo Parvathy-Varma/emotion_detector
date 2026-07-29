@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reaction Game ⚡</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #141e30, #243b55);
+      font-family: 'Poppins', sans-serif;
+      color: #fff;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    h1 {
+      font-size: 32px;
+      margin-top: 20px;
+      text-shadow: 0 0 10px #00e0ff;
+    }
+
+    #score {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      font-size: 22px;
+      background: rgba(255, 255, 255, 0.15);
+      padding: 10px 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #00e0ff;
+    }
+
+    #gameBox {
+      width: 300px;
+      height: 300px;
+      background: #ff4b5c;
+      border-radius: 15px;
+      box-shadow: 0 0 30px rgba(0, 224, 255, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s, box-shadow 0.3s;
+      user-select: none;
+    }
+
+    #gameBox.ready {
+      background: #00c853;
+      box-shadow: 0 0 25px #00ff99;
+    }
+
+    #startBtn {
+      margin-top: 20px;
+      background: linear-gradient(45deg, #ff6b6b, #ffd93d);
+      color: #222;
+      border: none;
+      font-size: 20px;
+      padding: 12px 30px;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 0 15px #ffd93d;
+      transition: 0.3s;
+    }
+
+    #startBtn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 25px #ff6b6b;
+    }
+
+    #result {
+      margin-top: 25px;
+      font-size: 24px;
+      display: none;
+      color: #ffd93d;
+      text-shadow: 0 0 10px #ffd93d;
+    }
+  </style>
+</head>
+<body>
+  <h1>Reaction Game ⚡</h1>
+  <div id="score">Score: 0</div>
+  <div id="gameBox">Click Start to Begin</div>
+  <button id="startBtn">Start Game</button>
+  <div id="result"></div>
+
+  <script>
+    const gameBox = document.getElementById('gameBox');
+    const startBtn = document.getElementById('startBtn');
+    const result = document.getElementById('result');
+    const scoreDisplay = document.getElementById('score');
+    let startTime, endTime;
+    let waiting = false;
+    let score = 0;
+    let timeout;
+
+    function startGame() {
+      result.style.display = 'none';
+      scoreDisplay.textContent = 'Score: ' + score;
+      startBtn.style.display = 'none';
+      gameBox.textContent = 'Wait for Green...';
+      gameBox.style.background = '#ff4b5c';
+      gameBox.classList.remove('ready');
+      waiting = true;
+
+      const delay = 1000 + Math.random() * 4000; // random 1–5 seconds
+      timeout = setTimeout(() => {
+        gameBox.classList.add('ready');
+        gameBox.textContent = 'CLICK NOW!';
+        startTime = new Date().getTime();
+      }, delay);
+    }
+
+    gameBox.addEventListener('click', () => {
+      if (!waiting) return;
+
+      if (!gameBox.classList.contains('ready')) {
+        // clicked too early
+        clearTimeout(timeout);
+        waiting = false;
+        gameBox.textContent = 'Too Soon! 😅';
+        endRound(false);
+      } else {
+        // valid click
+        endTime = new Date().getTime();
+        const reaction = endTime - startTime;
+        score += Math.max(0, (1000 - Math.min(reaction, 1000)) / 10);
+        gameBox.textContent = `Your Time: ${reaction} ms`;
+        waiting = false;
+        endRound(true, reaction);
+      }
+    });
+
+    function endRound(success, reaction = 0) {
+      clearTimeout(timeout);
+      gameBox.classList.remove('ready');
+      scoreDisplay.textContent = 'Score: ' + Math.round(score);
+
+      setTimeout(() => {
+        result.style.display = 'block';
+        result.textContent = success
+          ? `⚡ Great! Reaction Time: ${reaction} ms`
+          : `😅 Oops! You clicked too early!`;
+        startBtn.textContent = 'Play Again';
+        startBtn.style.display = 'block';
+        gameBox.textContent = 'Click Start to Play Again';
+      }, 1000);
+    }
+
+    startBtn.addEventListener('click', startGame);
+  </script>
+</body>
+</html>
+
